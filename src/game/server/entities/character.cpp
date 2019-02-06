@@ -1991,7 +1991,7 @@ void CCharacter::Tick()
 	
 	if(GetClass() == PLAYERCLASS_SPIDER)
 	{
-		CoreTickParams.m_HookGrabTime = 2*SERVER_TICK_SPEED;
+		CoreTickParams.m_HookGrabTime = g_Config.m_InfSpiderHookTime*SERVER_TICK_SPEED;
 	}
 	if(GetClass() == PLAYERCLASS_BAT)
 	{
