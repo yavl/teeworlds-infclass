@@ -72,7 +72,6 @@ m_pConsole(pConsole)
 	m_Health = 0;
 	m_Armor = 0;
 	
-/* INFECTION MODIFICATION START ***************************************/
 	m_AirJumpCounter = 0;
 	m_FirstShot = true;
 	
@@ -111,7 +110,6 @@ m_pConsole(pConsole)
 	m_VoodooTimeAlive = Server()->TickSpeed()*g_Config.m_InfVoodooAliveTime;
 	m_VoodooAboutToDie = false;
 	m_BroadcastWhiteHoleReady = -100;
-/* INFECTION MODIFICATION END *****************************************/
 }
 
 bool CCharacter::
@@ -195,7 +193,6 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 
 	GameServer()->m_pController->OnCharacterSpawn(this);
 
-/* INFECTION MODIFICATION START ***************************************/
 	m_AntiFireTick = Server()->Tick();
 	m_IsFrozen = false;
 	m_IsInSlowMotion = false;
@@ -220,14 +217,12 @@ bool CCharacter::Spawn(CPlayer *pPlayer, vec2 Pos)
 	{
 		OpenClassChooser();
 	}
-/* INFECTION MODIFICATION END *****************************************/
 
 	return true;
 }
 
 void CCharacter::Destroy()
 {	
-/* INFECTION MODIFICATION START ***************************************/
 	DestroyChildEntities();
 	
 	m_pPlayer->ResetNumberKills();
@@ -263,8 +258,6 @@ void CCharacter::Destroy()
 		}
 
 	}
-	
-/* INFECTION MODIFICATION END *****************************************/
 
 	GameServer()->m_World.m_Core.m_apCharacters[m_pPlayer->GetCID()] = 0;
 	m_Alive = false;
@@ -333,10 +326,8 @@ void CCharacter::HandleWaterJump()
 
 void CCharacter::HandleNinja()
 {
-/* INFECTION MODIFICATION START ***************************************/
 	if(GetInfWeaponID(m_ActiveWeapon) != INFWEAPON_NINJA_HAMMER)
 		return;
-/* INFECTION MODIFICATION END *****************************************/
 
 	m_DartLifeSpan--;
 
@@ -399,10 +390,8 @@ void CCharacter::HandleNinja()
 
 void CCharacter::DoWeaponSwitch()
 {
-/* INFECTION MODIFICATION START ***************************************/
 	if(m_ReloadTimer != 0 || m_QueuedWeapon == -1)
 		return;
-/* INFECTION MODIFICATION END *****************************************/
 
 	// switch Weapon
 	SetWeapon(m_QueuedWeapon);
@@ -575,22 +564,18 @@ void CCharacter::UpdateTuningParam()
 
 void CCharacter::FireWeapon()
 {
-/* INFECTION MODIFICATION START ***************************************/
 	//Wait 1 second after spawning
 	if(Server()->Tick() - m_AntiFireTick < Server()->TickSpeed())
 		return;
 	
 	if(IsFrozen())
 		return;
-/* INFECTION MODIFICATION END *****************************************/
 	
 	if(m_ReloadTimer != 0)
 		return;
 
-/* INFECTION MODIFICATION START ***************************************/
 	if(GetClass() == PLAYERCLASS_NONE)
 		return;
-/* INFECTION MODIFICATION END *****************************************/
 
 	DoWeaponSwitch();
 	vec2 Direction = normalize(vec2(m_LatestInput.m_TargetX, m_LatestInput.m_TargetY));
@@ -649,7 +634,6 @@ void CCharacter::FireWeapon()
 	{
 		case WEAPON_HAMMER:
 		{
-/* INFECTION MODIFICATION START ***************************************/
 			if(GetClass() == PLAYERCLASS_ENGINEER)
 			{
 				for(CEngineerWall *pWall = (CEngineerWall*) GameWorld()->FindFirst(CGameWorld::ENTTYPE_ENGINEER_WALL); pWall; pWall = (CEngineerWall*) pWall->TypeNext())
@@ -863,7 +847,6 @@ void CCharacter::FireWeapon()
 			}
 			else
 			{
-/* INFECTION MODIFICATION END *****************************************/
 				// reset objects Hit
 				int Hits = 0;
 				bool ShowAttackAnimation = false;
@@ -905,7 +888,6 @@ void CCharacter::FireWeapon()
 						else
 							Dir = vec2(0.f, -1.f);
 						
-	/* INFECTION MODIFICATION START ***************************************/
 						if(IsZombie())
 						{
 							if(pTarget->IsZombie())
@@ -977,7 +959,6 @@ void CCharacter::FireWeapon()
 							pTarget->TakeDamage(vec2(0.f, -1.f) + normalize(Dir + vec2(0.f, -1.1f)) * 10.0f, g_pData->m_Weapons.m_Hammer.m_pBase->m_Damage,
 								m_pPlayer->GetCID(), m_ActiveWeapon, TAKEDAMAGEMODE_NOINFECTION);
 						}
-	/* INFECTION MODIFICATION END *****************************************/
 						Hits++;
 					}
 				}
@@ -1012,10 +993,7 @@ void CCharacter::FireWeapon()
 				if(!ShowAttackAnimation)
 					return;
 					
-/* INFECTION MODIFICATION START ***************************************/
 			}
-/* INFECTION MODIFICATION END *****************************************/
-
 		} break;
 
 		case WEAPON_GUN:
@@ -1470,7 +1448,6 @@ void CCharacter::HandleWeapons()
 	FireWeapon();
 
 	// ammo regen
-/* INFECTION MODIFICATION START ***************************************/
 	for(int i=WEAPON_GUN; i<=WEAPON_RIFLE; i++)
 	{
 		int InfWID = GetInfWeaponID(i);
@@ -1535,12 +1512,10 @@ void CCharacter::HandleWeapons()
 			}
 		}
 	}
-/* INFECTION MODIFICATION END *****************************************/
 
 	return;
 }
 
-/* INFECTION MODIFICATION START ***************************************/
 void CCharacter::RemoveAllGun()
 {
 	m_aWeapons[WEAPON_GUN].m_Got = false;
@@ -1552,7 +1527,6 @@ void CCharacter::RemoveAllGun()
 	m_aWeapons[WEAPON_SHOTGUN].m_Got = false;
 	m_aWeapons[WEAPON_SHOTGUN].m_Ammo = 0;
 }
-/* INFECTION MODIFICATION END *****************************************/
 
 bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 {
@@ -1627,7 +1601,6 @@ void CCharacter::ResetInput()
 
 void CCharacter::Tick()
 {
-/* INFECTION MODIFICATION START ***************************************/
 	//~ if(GameServer()->Collision()->CheckPhysicsFlag(m_Core.m_Pos, CCollision::COLFLAG_WATER))
 	//~ {
 		//~ if(m_InWater == 0)
@@ -2444,7 +2417,6 @@ void CCharacter::Tick()
 			);
 		}
 	}
-/* INFECTION MODIFICATION END *****************************************/
 
 	// Previnput
 	m_PrevInput = m_Input;
@@ -2600,9 +2572,7 @@ void CCharacter::TickPaused()
 	if(m_EmoteStop > -1)
 		++m_EmoteStop;
 		
-/* INFECTION MODIFICATION START ***************************************/
 	++m_HookDmgTick;
-/* INFECTION MODIFICATION END *****************************************/
 }
 
 bool CCharacter::IncreaseHealth(int Amount)
@@ -2652,7 +2622,6 @@ int CCharacter::GetHealthArmorSum()
 
 void CCharacter::Die(int Killer, int Weapon)
 {
-/* INFECTION MODIFICATION START ***************************************/
 	if(GetClass() == PLAYERCLASS_UNDEAD && Killer != m_pPlayer->GetCID())
 	{
 		Freeze(10.0, Killer, FREEZEREASON_UNDEAD);
@@ -2698,7 +2667,6 @@ void CCharacter::Die(int Killer, int Weapon)
 	
 	
 	DestroyChildEntities();
-/* INFECTION MODIFICATION END *****************************************/
 	
 	// we got to wait 0.5 secs before respawning
 	m_pPlayer->m_RespawnTick = Server()->Tick()+Server()->TickSpeed()/2;
@@ -2740,7 +2708,6 @@ void CCharacter::Die(int Killer, int Weapon)
 		}
 	}
 	
-/* INFECTION MODIFICATION START ***************************************/
 	if(GetClass() == PLAYERCLASS_BOOMER && !IsFrozen() && Weapon != WEAPON_GAME && !(IsInLove() && Weapon == WEAPON_SELF) )
 	{
 		GameServer()->CreateSound(m_Pos, SOUND_GRENADE_EXPLODE);
@@ -2766,12 +2733,10 @@ void CCharacter::Die(int Killer, int Weapon)
 	if (m_Core.m_Passenger) {
 		m_Core.m_Passenger->m_IsPassenger = false; // InfClassR taxi mode
 	}
-/* INFECTION MODIFICATION END *****************************************/
 }
 
 bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, int Mode)
 {
-/* INFECTION MODIFICATION START ***************************************/
 
 	//KillerPlayer
 	CPlayer* pKillerPlayer = GameServer()->m_apPlayers[From]; // before using this variable check if it exists with "if (pKillerPlayer)"
@@ -2826,7 +2791,7 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, int Mode)
 		else
 		{
 			//If the player is a new infected, don't infected other -> nobody knows that he is infected.
-			if(!pKillerPlayer->IsZombie() || (Server()->Tick() - pKillerPlayer->m_InfectionTick)*Server()->TickSpeed() < 0.5) return false;
+			if(pKillerPlayer->IsHuman() || (Server()->Tick() - pKillerPlayer->m_InfectionTick)*Server()->TickSpeed() < 0.5) return false;
 		}
 	}
 
@@ -2835,8 +2800,6 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, int Mode)
 		SlowMotionEffect(g_Config.m_InfSlowMotionGunDuration);
 		if (g_Config.m_InfSlowMotionGunDuration != 0) GameServer()->SendEmoticon(GetPlayer()->GetCID(), EMOTICON_EXCLAMATION);	
 	}
-	
-/* INFECTION MODIFICATION END *****************************************/
 
 	// m_pPlayer only inflicts half damage on self
 	if(From == m_pPlayer->GetCID())
@@ -2863,7 +2826,6 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, int Mode)
 		GameServer()->CreateDamageInd(m_Pos, 0, Dmg);
 	}
 
-/* INFECTION MODIFICATION START ***************************************/
 	if(Dmg)
 	{
 		if(m_Armor)
@@ -2888,14 +2850,12 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, int Mode)
 		if(From >= 0 && From != m_pPlayer->GetCID())
 			GameServer()->SendHitSound(From);
 	}
-/* INFECTION MODIFICATION END *****************************************/
 
 	m_DamageTakenTick = Server()->Tick();
 	m_InvisibleTick = Server()->Tick();
 
 	// do damage Hit sound
 	
-/* INFECTION MODIFICATION START ***************************************/
 	if(Mode == TAKEDAMAGEMODE_INFECTION && pKillerPlayer && pKillerPlayer->IsZombie() && IsHuman() && GetClass() != PLAYERCLASS_HERO)
 	{
 		m_pPlayer->StartInfection();
@@ -2925,7 +2885,6 @@ bool CCharacter::TakeDamage(vec2 Force, int Dmg, int From, int Weapon, int Mode)
 		Msg.m_ModeSpecial = 0;
 		Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, -1);
 	}
-/* INFECTION MODIFICATION END *****************************************/
 
 	// check for death
 	if(m_Health <= 0)
@@ -2973,10 +2932,9 @@ void CCharacter::Snap(int SnappingClient)
 	
 	CPlayer* pClient = GameServer()->m_apPlayers[SnappingClient];
 	
-/* INFECTION MODIFICATION START ***************************************/
 	if(GetClass() == PLAYERCLASS_GHOST)
 	{
-		if(!pClient->IsZombie() && m_IsInvisible) return;
+		if(pClient->IsHuman() && m_IsInvisible) return;
 	}
 	else if(GetClass() == PLAYERCLASS_WITCH)
 	{
@@ -3060,7 +3018,6 @@ void CCharacter::Snap(int SnappingClient)
 		{
 			for(int i=0; i<2; i++) 
 			{
-				
 				CNetObj_Laser *pObj = static_cast<CNetObj_Laser *>(Server()->SnapNewItem(NETOBJTYPE_LASER, m_BarrierHintIDs[i], sizeof(CNetObj_Laser)));
 				
 				if(!pObj)
@@ -3072,7 +3029,6 @@ void CCharacter::Snap(int SnappingClient)
 				pObj->m_FromY = (int)m_FirstShotCoord.y;
 				pObj->m_StartTick = Server()->Tick();
 			}
-
 		}
 	}
 	
@@ -3139,7 +3095,6 @@ void CCharacter::Snap(int SnappingClient)
 			}
 		}
 	}
-/* INFECTION MODIFICATION END ***************************************/
 
 	CNetObj_Character *pCharacter = static_cast<CNetObj_Character *>(Server()->SnapNewItem(NETOBJTYPE_CHARACTER, id, sizeof(CNetObj_Character)));
 	if(!pCharacter)
@@ -3182,7 +3137,6 @@ void CCharacter::Snap(int SnappingClient)
 	pCharacter->m_Health = 0;
 	pCharacter->m_Armor = 0;
 
-/* INFECTION MODIFICATION START ***************************************/
 	if(GetInfWeaponID(m_ActiveWeapon) == INFWEAPON_NINJA_HAMMER)
 	{
 		pCharacter->m_Weapon = WEAPON_NINJA;
@@ -3204,7 +3158,6 @@ void CCharacter::Snap(int SnappingClient)
 		if(pCharacter->m_HookTick < 0)
 			pCharacter->m_HookTick = 0;
 	}
-/* INFECTION MODIFICATION END *****************************************/
 	pCharacter->m_AttackTick = m_AttackTick;
 
 	pCharacter->m_Direction = m_Input.m_Direction;
@@ -3218,12 +3171,10 @@ void CCharacter::Snap(int SnappingClient)
 			pCharacter->m_AmmoCount = m_aWeapons[m_ActiveWeapon].m_Ammo;
 	}
 	
-/* INFECTION MODIFICATION START ***************************************/
 	if(GetInfWeaponID(m_ActiveWeapon) == INFWEAPON_MERCENARY_GUN)
 	{
 		pCharacter->m_AmmoCount /= (Server()->GetMaxAmmo(INFWEAPON_MERCENARY_GUN)/10);
 	}
-/* INFECTION MODIFICATION END *****************************************/
 
 	if(pCharacter->m_Emote == EmoteNormal)
 	{
@@ -3234,7 +3185,6 @@ void CCharacter::Snap(int SnappingClient)
 	pCharacter->m_PlayerFlags = GetPlayer()->m_PlayerFlags;
 }
 
-/* INFECTION MODIFICATION START ***************************************/
 void CCharacter::OpenClassChooser()
 {
 	if(!Server()->IsClassChooserEnabled() || Server()->GetClientAlwaysRandom(m_pPlayer->GetCID()))
@@ -3927,4 +3877,3 @@ int CCharacter::GetInfZoneTick() // returns how many ticks long a player is alre
 	if (m_InfZoneTick < 0) return 0;
 	return Server()->Tick()-m_InfZoneTick;
 }
-/* INFECTION MODIFICATION END *****************************************/

@@ -22,15 +22,11 @@ enum
 	NO_RESET
 };
 
-/* INFECTION MODIFICATION START ***************************************/
-
 void CGameContext::OnSetAuthed(int ClientID, int Level)
 {
 	if(m_apPlayers[ClientID])
 		m_apPlayers[ClientID]->m_Authed = Level;
 }
-
-/* INFECTION MODIFICATION END *****************************************/
 
 void CGameContext::Construct(int Resetting)
 {
@@ -297,7 +293,6 @@ void CGameContext::CreateExplosion(vec2 Pos, int Owner, int Weapon, bool NoDamag
 	}
 }
 
-// Thanks to Stitch for the idea
 void CGameContext::CreateExplosionDisk(vec2 Pos, float InnerRadius, float DamageRadius, int Damage, float Force, int Owner, int Weapon, int TakeDamageMode)
 {
 	// create the event
@@ -421,7 +416,6 @@ void CGameContext::SendChatTarget(int To, const char *pText)
 	Server()->SendPackMsg(&Msg, MSGFLAG_VITAL, To);
 }
 
-/* INFECTION MODIFICATION START ***************************************/
 void CGameContext::SendChatTarget_Localization(int To, int Category, const char* pText, ...)
 {
 	int Start = (To < 0 ? 0 : To);
@@ -716,8 +710,6 @@ void CGameContext::SendBroadcast_ClassIntro(int ClientID, int Class)
 		SendBroadcast_Localization(ClientID, BROADCAST_PRIORITY_GAMEANNOUNCE, BROADCAST_DURATION_GAMEANNOUNCE, _("You are an infected: {str:ClassName}"), "ClassName", pClassName, NULL);
 }
 
-/* INFECTION MODIFICATION END *****************************************/
-
 void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText)
 {
 	char aBuf[256];
@@ -748,7 +740,6 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText)
 		// send to the clients
 		for(int i = 0; i < MAX_CLIENTS; i++)
 		{
-/* INFECTION MODIFICATION START ***************************************/
 			if(m_apPlayers[i])
 			{
 				int PlayerTeam = (m_apPlayers[i]->IsZombie() ? CGameContext::CHAT_RED : CGameContext::CHAT_BLUE );
@@ -759,7 +750,6 @@ void CGameContext::SendChat(int ChatterClientID, int Team, const char *pText)
 					Server()->SendPackMsg(&Msg, MSGFLAG_VITAL|MSGFLAG_NORECORD, i);
 				}
 			}
-/* INFECTION MODIFICATION END *****************************************/
 		}
 	}
 }
@@ -1138,7 +1128,6 @@ void CGameContext::OnTick()
 	
 	Server()->RoundStatistics()->UpdateNumberOfPlayers(NumActivePlayers);
 	
-/* INFECTION MODIFICATION START ***************************************/
 	//Clean old dots
 	int DotIter;
 	
@@ -1181,7 +1170,6 @@ void CGameContext::OnTick()
 		else
 			DotIter++;
 	}
-/* INFECTION MODIFICATION END *****************************************/
 
 	// update voting
 	if(m_VoteCloseTime)
@@ -1311,10 +1299,8 @@ void CGameContext::OnClientEnter(int ClientID)
 	m_apPlayers[ClientID]->m_IsInGame = true;
 	m_apPlayers[ClientID]->Respawn();
 	
-/* INFECTION MODIFICATION START ***************************************/
 	SendChatTarget_Localization(-1, CHATCATEGORY_PLAYER, _("{str:PlayerName} entered and joined the game"), "PlayerName", Server()->ClientName(ClientID), NULL);
 	SendChatTarget(ClientID, "Join our Discord server: discord.gg/Sxk5ssv");
-/* INFECTION MODIFICATION END *****************************************/
 
 	char aBuf[512];
 	str_format(aBuf, sizeof(aBuf), "team_join player='%d:%s' team=%d", ClientID, Server()->ClientName(ClientID), m_apPlayers[ClientID]->GetTeam());
@@ -1333,7 +1319,6 @@ void CGameContext::OnClientConnected(int ClientID)
 	else
 		m_apPlayers[ClientID] = new(ClientID) CPlayer(this, ClientID, StartTeam);
 	
-	//Thanks to Stitch
 	if(m_pController->IsInfectionStarted())
 		m_apPlayers[ClientID]->StartInfection();
 	//players[client_id].init(client_id);
@@ -1348,10 +1333,8 @@ void CGameContext::OnClientConnected(int ClientID)
 			return;
 	}
 #endif
-
-/* INFECTION MODIFICATION START ***************************************/	
+	
 	Server()->RoundStatistics()->ResetPlayer(ClientID);
-/* INFECTION MODIFICATION END *****************************************/	
 
 	// send active vote
 	if(m_VoteCloseTime)
@@ -1647,7 +1630,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			if(g_Config.m_SvSpamprotection && pPlayer->m_LastChat && pPlayer->m_LastChat+Server()->TickSpeed() > Server()->Tick())
 				return;
 
-/* INFECTION MODIFICATION START ***************************************/
 			CNetMsg_Cl_Say *pMsg = (CNetMsg_Cl_Say *)pRawMsg;
 			int Team = CGameContext::CHAT_ALL;
 			if(pMsg->m_Team)
@@ -1655,7 +1637,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				if(pPlayer->GetTeam() == TEAM_SPECTATORS) Team = CGameContext::CHAT_SPEC;
 				else Team = (pPlayer->IsZombie() ? CGameContext::CHAT_RED : CGameContext::CHAT_BLUE);
 			}
-/* INFECTION MODIFICATION END *****************************************/
 			
 			// trim right and set maximum length to 271 utf8-characters
 			int Length = 0;
@@ -1691,8 +1672,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 
 			pPlayer->m_LastChat = Server()->Tick();
 			
-			
-/* INFECTION MODIFICATION START ***************************************/
 			if(str_comp_num(pMsg->m_pMessage, "/msg ", 5) == 0)
 			{
 				PrivateMessage(pMsg->m_pMessage+5, ClientID, (Team != CGameContext::CHAT_ALL));
@@ -1737,7 +1716,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					SendChat(ClientID, Team, Buffer.buffer());
 				}
 			}
-/* INFECTION MODIFICATION END *****************************************/
 		}
 		else if(MsgID == NETMSGTYPE_CL_CALLVOTE)
 		{
@@ -1819,7 +1797,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				return;
 			}
 			
-/* INFECTION MODIFICATION START ***************************************/
 			if(m_apPlayers[ClientID]->IsZombie() && pMsg->m_Team == TEAM_SPECTATORS) 
 			{
 				int InfectedCount = 0;
@@ -1836,7 +1813,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 					 return;
 				}
 			}
-/* INFECTION MODIFICATION END *****************************************/
 
 			// Switch team on given client and kill/respawn him
 			if(m_pController->CanJoinTeam(pMsg->m_Team, ClientID))
@@ -1903,12 +1879,10 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			Server()->SetClientCountry(ClientID, pMsg->m_Country);
 			#endif
 			
-/* INFECTION MODIFICATION START ***************************************/
 			str_copy(pPlayer->m_TeeInfos.m_CustomSkinName, pMsg->m_pSkin, sizeof(pPlayer->m_TeeInfos.m_CustomSkinName));
 			//~ pPlayer->m_TeeInfos.m_UseCustomColor = pMsg->m_UseCustomColor;
 			//~ pPlayer->m_TeeInfos.m_ColorBody = pMsg->m_ColorBody;
 			//~ pPlayer->m_TeeInfos.m_ColorFeet = pMsg->m_ColorFeet;
-/* INFECTION MODIFICATION END *****************************************/
 
 			m_pController->OnPlayerInfoChange(pPlayer);
 		}
@@ -1943,7 +1917,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 			pPlayer->m_LastChangeInfo = Server()->Tick();
 
 			// set start infos
-/* INFECTION MODIFICATION START ***************************************/
 			Server()->SetClientName(ClientID, pMsg->m_pName);
 			Server()->SetClientClan(ClientID, pMsg->m_pClan);
 			Server()->SetClientCountry(ClientID, pMsg->m_Country);
@@ -2157,8 +2130,6 @@ void CGameContext::OnMessage(int MsgID, CUnpacker *pUnpacker, int ClientID)
 				
 				Server()->SetClientMemory(ClientID, CLIENTMEMORY_LANGUAGESELECTION, true);
 			}
-			
-/* INFECTION MODIFICATION END *****************************************/
 
 			// send vote options
 			CNetMsg_Sv_VoteClearOptions ClearMsg;
@@ -2800,8 +2771,6 @@ bool CGameContext::ConchainSpecialMotdupdate(IConsole::IResult *pResult, void *p
 	return true;
 }
 
-
-/* INFECTION MODIFICATION START ***************************************/
 bool CGameContext::ConSetClass(IConsole::IResult *pResult, void *pUserData)
 {
 	CGameContext *pSelf = (CGameContext *)pUserData;
@@ -4020,8 +3989,6 @@ bool CGameContext::ConWitch(IConsole::IResult *pResult, void *pUserData)
 	return true;
 }
 
-/* INFECTION MODIFICATION END *****************************************/
-
 void CGameContext::OnConsoleInit()
 {
 	m_pServer = Kernel()->RequestInterface<IServer>();
@@ -4050,7 +4017,6 @@ void CGameContext::OnConsoleInit()
 	Console()->Register("vote", "r", CFGFLAG_SERVER, ConVote, this, "Force a vote to yes/no");
 	Console()->Register("start_fun_round", "", CFGFLAG_SERVER, ConStartFunRound, this, "Start fun round");
 	
-/* INFECTION MODIFICATION START ***************************************/
 	Console()->Register("inf_set_class", "is", CFGFLAG_SERVER, ConSetClass, this, "Set the class of a player");
 	
 	//Chat Command
@@ -4074,7 +4040,6 @@ void CGameContext::OnConsoleInit()
 	Console()->Register("language", "s<en|fr|nl|de|bg|sr-Latn|hr|cs|pl|uk|ru|el|la|it|es|pt|hu|ar|tr|sah|fa|tl|zh-Hans|ja>", CFGFLAG_CHAT|CFGFLAG_USER, ConLanguage, this, "Display information about the mod");
 	Console()->Register("cmdlist", "", CFGFLAG_CHAT|CFGFLAG_USER, ConCmdList, this, "List of commands");
 	Console()->Register("witch", "", CFGFLAG_CHAT|CFGFLAG_USER, ConWitch, this, "Call Witch");
-/* INFECTION MODIFICATION END *****************************************/
 
 	Console()->Chain("sv_motd", ConchainSpecialMotdupdate, this);
 }
@@ -4192,7 +4157,6 @@ void CGameContext::OnSnap(int ClientID)
 	m_pController->Snap(ClientID);
 	m_Events.Snap(ClientID);
 
-/* INFECTION MODIFICATION START ***************************************/
 	//Snap laser dots
 	for(int i=0; i < m_LaserDots.size(); i++)
 	{
@@ -4263,7 +4227,6 @@ void CGameContext::OnSnap(int ClientID)
 			pObj->m_Subtype = 0;
 		}
 	}
-/* INFECTION MODIFICATION END *****************************************/
 	
 	for(int i = 0; i < MAX_CLIENTS; i++)
 	{
