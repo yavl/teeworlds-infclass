@@ -52,7 +52,8 @@ void CGameContext::Construct(int Resetting)
 	m_HeroGiftCooldown = 0;
 	m_NbActivePlayers = 0;
 	m_NbSpectators = 0;
-	
+	m_NbHumans = 0;
+	m_NbZombies = 0;
 	m_ChatResponseTargetID = -1;
 
 	if(Resetting==NO_RESET)
