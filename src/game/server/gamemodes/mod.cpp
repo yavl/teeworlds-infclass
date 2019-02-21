@@ -118,18 +118,8 @@ void CGameControllerMOD::EndRound()
 
 void CGameControllerMOD::GetPlayerCounter(int ClientException, int& NumHumans, int& NumInfected, int& NumFirstInfected)
 {
-	NumHumans = 0;
-	NumInfected = 0;
-	
-	//Count type of players
-	CPlayerIterator<PLAYERITER_INGAME> Iter(GameServer()->m_apPlayers);
-	while(Iter.Next())
-	{
-		if(Iter.ClientID() == ClientException) continue;
-		
-		if(Iter.Player()->IsZombie()) NumInfected++;
-		else NumHumans++;
-	}
+	NumHumans = GameServer()->GetHumanCount();
+	NumInfected = GameServer()->GetZombieCount();
 	
 	if(NumHumans + NumInfected <= 1)
 		NumFirstInfected = 0;

@@ -525,7 +525,7 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 	Team = GameServer()->m_pController->ClampTeam(Team);
 	if(m_Team == Team)
 		return;
-
+	
 	char aBuf[512];
 	if(DoChatMsg)
 	{
@@ -534,10 +534,12 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 			GameServer()->SendChatTarget_Localization(-1, CHATCATEGORY_PLAYER, _("{str:PlayerName} joined the spectators"), "PlayerName", Server()->ClientName(m_ClientID), NULL);
 			GameServer()->AddSpectatorCID(m_ClientID);
 			Server()->InfecteClient(m_ClientID);
+			GameServer()->CountActivePlayers(); // updates also spectators
 		}
 		else
 		{
 			GameServer()->SendChatTarget_Localization(-1, CHATCATEGORY_PLAYER, _("{str:PlayerName} joined the game"), "PlayerName", Server()->ClientName(m_ClientID), NULL);
+			GameServer()->CountActivePlayers(); // updates also spectators
 		}
 	}
 
@@ -757,6 +759,9 @@ void CPlayer::SetClass(int newClass)
 	{
 		m_pCharacter->SetClass(newClass);
 	}
+	
+	//update number of humans and zombies
+	GameServer()->CountHumans(); //updates also zombies
 }
 
 int CPlayer::GetOldClass()
