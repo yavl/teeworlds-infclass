@@ -534,12 +534,10 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 			GameServer()->SendChatTarget_Localization(-1, CHATCATEGORY_PLAYER, _("{str:PlayerName} joined the spectators"), "PlayerName", Server()->ClientName(m_ClientID), NULL);
 			GameServer()->AddSpectatorCID(m_ClientID);
 			Server()->InfecteClient(m_ClientID);
-			GameServer()->CountActivePlayers(); // updates also spectators
 		}
 		else
 		{
 			GameServer()->SendChatTarget_Localization(-1, CHATCATEGORY_PLAYER, _("{str:PlayerName} joined the game"), "PlayerName", Server()->ClientName(m_ClientID), NULL);
-			GameServer()->CountActivePlayers(); // updates also spectators
 		}
 	}
 
@@ -565,6 +563,10 @@ void CPlayer::SetTeam(int Team, bool DoChatMsg)
 				GameServer()->m_apPlayers[i]->m_SpectatorID = SPEC_FREEVIEW;
 		}
 	}
+	
+	GameServer()->CountActivePlayers(); // updates also spectators
+	GameServer()->CountHumans(); // updates also zombies
+	
 }
 
 void CPlayer::TryRespawn()
