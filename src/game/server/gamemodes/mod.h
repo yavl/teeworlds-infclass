@@ -22,32 +22,34 @@ public:
 	virtual int OnCharacterDeath(class CCharacter *pVictim, class CPlayer *pKiller, int Weapon);
 	virtual void OnCharacterSpawn(class CCharacter *pChr);
 	virtual void OnPlayerInfoChange(class CPlayer *pP);
-	virtual void DoWincheck();
-	virtual void EndRound();
-	virtual bool PreSpawn(CPlayer* pPlayer, vec2 *pPos);
-	virtual bool PickupAllowed(int Index);
-	virtual int ChooseHumanClass(CPlayer* pPlayer);
-	virtual int ChooseInfectedClass(CPlayer* pPlayer);
-	virtual bool IsEnabledClass(int PlayerClass);
-	virtual bool IsChoosableClass(int PlayerClass);
-	virtual bool CanVote();
 	virtual void OnClientDrop(int ClientID, int Type);
-	virtual bool IsInfectionStarted();
-	
-	void ResetFinalExplosion();
+	bool PreSpawn(CPlayer* pPlayer, vec2 *pPos);
+	bool PickupAllowed(int Index);
+	int ChooseHumanClass(CPlayer* pPlayer);
+	int ChooseInfectedClass(CPlayer* pPlayer);
+	bool IsEnabledClass(int PlayerClass);
+	bool IsChoosableClass(int PlayerClass);
+	bool CanVote();
+	bool IsInfectionStarted();
 	int GetFirstInfNb();
 	
 private:
+	void ResetFinalExplosion();
 	bool IsSpawnable(vec2 Pos, int TeleZoneIndex);
 	void SetFirstInfectedNumber();
+	void DoInitialInfection();
+	void DoWinCheck();
+	void DoFinalExplosion();
+	void EndRound();
 	
 private:	
 	int m_MapWidth;
 	int m_MapHeight;
 	int* m_GrowingMap;
 	bool m_ExplosionStarted;
-	
-	bool m_InfectedStarted;
-	int m_NumFirstInfected;
+	bool m_ExplosionActive;
+	bool m_InfectionInstant;
+	bool m_InitialInfTriggered;
+	int m_NbFirstInfected;
 };
 #endif
