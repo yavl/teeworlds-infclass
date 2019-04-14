@@ -165,6 +165,11 @@ MACRO_CONFIG_INT(InfWhiteHolePullStrength, inf_white_hole_pull_strength, 40, 0, 
 MACRO_CONFIG_INT(InfStunGrenadeMinimalKills, inf_stun_grenade_minimal_kills, 2, 0, 30, CFGFLAG_SERVER, "Minimal number of kills before grenade stun ammunition can be found")
 MACRO_CONFIG_INT(InfStunGrenadeProbability, inf_stun_grenade_probability, 30, 0, 100, CFGFLAG_SERVER, "Probability of super weapon being available after MinimalKill requirement")
 
+//SafeZoneCircle
+MACRO_CONFIG_INT(InfSafeZoneMinRadius, inf_safe_zone_min_radius, 500, 100, 1000, CFGFLAG_SERVER, "Minimal Radius of safe zone")
+MACRO_CONFIG_INT(InfSafeZoneMaxRadius, inf_safe_zone_max_radius, 2000, 300, 5000, CFGFLAG_SERVER, "Maximal radius of safe zone")
+MACRO_CONFIG_INT(InfSafeZoneReductionRate, inf_safe_zone_reduction_rate, 6, 0, 100, CFGFLAG_SERVER, "Reduction rate of safe zone")
+MACRO_CONFIG_INT(InfInvisibleCircle4Zombies, inf_invisible_circle_4_zombies, 0, 0, 1, CFGFLAG_SERVER, "enables invisible safe zone for zombies")
 
 
 #endif

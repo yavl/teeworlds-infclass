@@ -50,6 +50,7 @@ void CGameContext::Construct(int Resetting)
 	m_TargetToKill = -1;
 	m_TargetToKillCoolDown = 0;
 	m_HeroGiftCooldown = 0;
+	m_SafeZoneIsMinimal = false;
 	
 	m_ChatResponseTargetID = -1;
 
