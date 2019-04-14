@@ -96,6 +96,9 @@ void IGameController::EndRound()
 
 	if (GameServer()->m_FunRound)
 		GameServer()->EndFunRound();
+	
+	GameServer()->m_SafeZoneIsMinimal = false;
+	
 }
 
 void IGameController::ResetGame()

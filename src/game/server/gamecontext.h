@@ -84,6 +84,7 @@ class CGameContext : public IGameServer
 	int m_TargetToKill;
 	int m_TargetToKillCoolDown;
 	int m_HeroGiftCooldown;
+	int m_SafeZoneIsMinimal;
 
 	#ifndef CONF_NOGEOLOCATION
 	Geolocation* geolocation;
