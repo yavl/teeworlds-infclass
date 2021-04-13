@@ -3697,16 +3697,16 @@ bool CGameContext::ConHelp(IConsole::IResult *pResult, void *pUserData)
 		{
 			Buffer.append("~~ ");
 			pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("Hero"), NULL); 
-			Buffer.append(" ~~\n\n");
-			pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("The Hero has a shotgun, a laser rifle and grenades."), NULL); 
+			Buffer.append(" ~~\n");
+			//pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("The Hero has a shotgun, a laser rifle and grenades."), NULL); 
 			Buffer.append("\n\n");
-			pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("The Hero can find a flag on the map which is only visible to himself."), NULL);
+			pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("The Hero can find a flag on the map which grants 1 health point, 4 armor points, and full ammo to all humans, furthermore full health and armor to the hero."), NULL);
 			Buffer.append("\n\n");
-			pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("Once taken, the flag gives 1 health point, 4 armor points, and full ammo to all humans, furthermore full health and armor to the hero."), NULL);
+			pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("Sometimes a heart may spawn that can be given to medics for additional revives."), NULL);
 			Buffer.append("\n\n");
 			pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("Besides you get a hammer to place a turret. Do \"/help turret\" for more information. "), NULL);
 			Buffer.append("\n\n");
-			pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("The gift to all humans is only applied when the flag is surrounded by hearts and armor. This gift cooldown is shared between all heros."), NULL);
+			pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("The global gift occurs only when a flag is surrounded by hearts and armor. This restriction is shared between all heros."), NULL);
 			Buffer.append("\n\n");
 			pSelf->Server()->Localization()->Format_L(Buffer, pLanguage, _("Cannot find a flag? Stand still for some seconds, maybe you will get enlightened."), NULL);
 			Buffer.append("\n\n");

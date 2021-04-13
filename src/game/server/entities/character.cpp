@@ -98,6 +98,7 @@ m_pConsole(pConsole)
 	m_PositionLocked = false;
 	m_PositionLockAvailable = false;
 	m_PoisonTick = 0;
+	m_ReviveTick = 0;
 	m_HealTick = 0;
 	m_InfZoneTick = -1;
 	m_ProtectionTick = 0;
@@ -1604,6 +1605,10 @@ bool CCharacter::GiveWeapon(int Weapon, int Ammo)
 	if(Ammo < 0)
 		Ammo = MaxAmmo;
 	
+	// Medic starts with a single shot on spawn, but may store more ammo
+	if(InfWID == INFWEAPON_MEDIC_RIFLE)
+		Ammo = m_aWeapons[Weapon].m_Ammo + 1;
+
 	if(m_aWeapons[Weapon].m_Ammo < MaxAmmo || !m_aWeapons[Weapon].m_Got)
 	{
 		m_aWeapons[Weapon].m_Got = true;
@@ -2018,6 +2023,36 @@ void CCharacter::Tick()
 		}
 	}
 	
+	if(GetClass() == PLAYERCLASS_RESCUE)
+	{
+		// Revival success
+		if(m_Armor == 10)
+		{
+			m_pPlayer->SetClass(m_pPlayer->GetOldClass());
+			m_pPlayer->HookProtection(true, false);
+			m_ReviveTick = 0;
+			Unfreeze();
+		}
+
+		// Revival too late
+		if(m_Health == 0)
+		{
+			Die(m_pPlayer->GetCID(), WEAPON_SELF);
+			m_ReviveTick = 0;
+		}
+
+		if(m_ReviveTick == 0)
+		{
+			m_Health -= 1;
+			GameServer()->CreateDamageInd(m_Pos, 0, m_Health);
+			m_ReviveTick = Server()->TickSpeed();
+		}
+		else
+		{
+			m_ReviveTick--;
+		}
+	}
+
 	if(GetClass() == PLAYERCLASS_NINJA && IsGrounded() && m_DartLifeSpan <= 0)
 	{
 		m_DartLeft = g_Config.m_InfNinjaJump;
@@ -2551,7 +2586,6 @@ void CCharacter::GiveGift(int GiftType)
 		case PLAYERCLASS_MEDIC:
 			GiveWeapon(WEAPON_SHOTGUN, -1);
 			GiveWeapon(WEAPON_GRENADE, -1);
-			GiveWeapon(WEAPON_RIFLE, -1);
 			break;
 		case PLAYERCLASS_HERO:
 			GiveWeapon(WEAPON_SHOTGUN, -1);

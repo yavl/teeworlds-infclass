@@ -21,7 +21,8 @@ enum
 enum
 {
 	FREEZEREASON_FLASH = 0,
-	FREEZEREASON_UNDEAD = 1
+	FREEZEREASON_UNDEAD = 1,
+	FREEZEREASON_REVIVE = 2,
 };
 
 #define GHOST_RADIUS 11
@@ -219,6 +220,7 @@ public:
 	int m_SlipperyTick;
 	int m_PoisonTick;
 	int m_Poison;
+	int m_ReviveTick;
 	int m_SlowMotionTick; //LooperClass changes here
 	int m_PoisonFrom;
 	int m_LastFreezer;

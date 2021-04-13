@@ -4,6 +4,7 @@
 #include <game/server/gamecontext.h>
 #include "laser.h"
 #include <engine/server/roundstatistics.h>
+#include <engine/shared/config.h>
 
 CLaser::CLaser(CGameWorld *pGameWorld, vec2 Pos, vec2 Direction, float StartEnergy, int Owner, int Dmg)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_LASER)
@@ -34,27 +35,23 @@ bool CLaser::HitCharacter(vec2 From, vec2 To)
 	
 	if (pOwnerChar && pOwnerChar->GetClass() == PLAYERCLASS_MEDIC) { // Revive zombie
 		const int MIN_ZOMBIES = 5;
-		const int DAMAGE_ON_REVIVE = 17;
 		int old_class = pHit->GetPlayer()->GetOldClass();
 		auto& medic = pOwnerChar;
 		auto& zombie = pHit;
 
-		if (medic->GetHealthArmorSum() <= DAMAGE_ON_REVIVE) {
-			int HealthArmor = DAMAGE_ON_REVIVE + 1;
-			GameServer()->SendBroadcast_Localization(m_Owner, BROADCAST_PRIORITY_GAMEANNOUNCE, BROADCAST_DURATION_GAMEANNOUNCE, _("You need at least {int:HealthArmor} hp"),
-					"HealthArmor", &HealthArmor);
-		}
-		else if (GameServer()->GetZombieCount() < MIN_ZOMBIES) {
+		if (GameServer()->GetZombieCount() < MIN_ZOMBIES) {
 			int MinZombies = MIN_ZOMBIES;
 			GameServer()->SendBroadcast_Localization(m_Owner, BROADCAST_PRIORITY_GAMEANNOUNCE, BROADCAST_DURATION_GAMEANNOUNCE, _("Too few zombies (less than {int:MinZombies})"),
 					"MinZombies", &MinZombies);
 		}
 		else {
-			zombie->GetPlayer()->SetClass(old_class);
+			zombie->GetPlayer()->SetClass(PLAYERCLASS_RESCUE);
 			if (zombie->GetPlayer()->GetCharacter()) {
-				zombie->GetPlayer()->GetCharacter()->SetHealthArmor(1, 0);
-				zombie->Unfreeze();
-				medic->TakeDamage(vec2(0.f, 0.f), DAMAGE_ON_REVIVE * 2, m_Owner, WEAPON_RIFLE, TAKEDAMAGEMODE_SELFHARM);
+				
+				zombie->GetPlayer()->GetCharacter()->SetHealthArmor(g_Config.m_InfReviveHealth, 0);
+				zombie->GetPlayer()->GetCharacter()->Freeze(100.0f, m_Owner, FREEZEREASON_REVIVE);
+				zombie->GetPlayer()->HookProtection(false, false);
+				
 				GameServer()->SendChatTarget_Localization(-1, CHATCATEGORY_DEFAULT, _("Medic {str:MedicName} revived {str:PlayerName}"),
 						"MedicName", Server()->ClientName(medic->GetPlayer()->GetCID()),
 						"PlayerName", Server()->ClientName(zombie->GetPlayer()->GetCID()));

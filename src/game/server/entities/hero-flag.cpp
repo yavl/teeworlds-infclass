@@ -4,6 +4,7 @@
 #include <engine/server/roundstatistics.h>
 #include <engine/shared/config.h>
 #include "hero-flag.h"
+#include "hero-flowers.h"
 
 CHeroFlag::CHeroFlag(CGameWorld *pGameWorld, int ClientID)
 : CEntity(pGameWorld, CGameWorld::ENTTYPE_HERO_FLAG)
@@ -128,6 +129,11 @@ void CHeroFlag::Tick()
 			float Len = distance(p->m_Pos, m_Pos);
 			if(Len < m_ProximityRadius + p->m_ProximityRadius)
 			{
+				if(random_int(0, 99) < g_Config.m_InfHeroFlowerSpawnChance)
+				{
+					new CHeroFlowers(&GameServer()->m_World, m_OwnerID, m_Pos);
+					GameServer()->SendChatTarget_Localization(m_OwnerID, CHATCATEGORY_DEFAULT, _("You found a medkit. Bring it to your medic!"));
+				}
 				FindPosition();
 				GiveGift(p);
 				
