@@ -1,8 +1,10 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+/* Modifications Copyright 2019 The InfclassR (https://github.com/yavl/teeworlds-infclassR/) Authors */
 #ifndef ENGINE_SHARED_CONSOLE_H
 #define ENGINE_SHARED_CONSOLE_H
 
+#include <base/math.h>
 #include <engine/console.h>
 #include "memheap.h"
 
@@ -54,6 +56,8 @@ class CConsole : public IConsole
 	static bool Con_Chain(IResult *pResult, void *pUserData);
 	static bool Con_Echo(IResult *pResult, void *pUserData);
 	static bool Con_Exec(IResult *pResult, void *pUserData);
+	static bool Con_PrintCfg(IResult *pResult, void *pUserData);
+	static bool Con_PrintCmd(IResult *pResult, void *pUserData);
 	static bool ConToggle(IResult *pResult, void *pUser);
 	static bool ConToggleStroke(IResult *pResult, void *pUser);
 	static bool ConModCommandAccess(IResult *pResult, void *pUser);

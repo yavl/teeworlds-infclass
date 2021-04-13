@@ -1,6 +1,8 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+/* Modifications Copyright 2019 The InfclassR (https://github.com/yavl/teeworlds-infclassR/) Authors */
 #include <engine/shared/config.h>
+#include <engine/shared/cfgvar_buffer.h>
 #include <game/mapitems.h>
 
 #include <game/generated/protocol.h>
@@ -136,6 +138,7 @@ void IGameController::StartRound()
 {
 	ResetGame();
 	
+	CCfgVarBuffer::OnRoundStart();
 	Server()->OnRoundStart();
 	GameServer()->OnStartRound();
 	

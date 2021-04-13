@@ -1,5 +1,6 @@
 /* (c) Magnus Auvinen. See licence.txt in the root of the distribution for more information. */
 /* If you are missing that file, acquire a complete release at teeworlds.com.                */
+/* Modifications Copyright 2019 The InfclassR (https://github.com/yavl/teeworlds-infclassR/) Authors */
 #include <new>
 
 #include <base/math.h>
@@ -8,9 +9,11 @@
 #include <engine/storage.h>
 #include <engine/shared/protocol.h>
 
+#include "string.h"
 #include "config.h"
 #include "console.h"
 #include "linereader.h"
+#include "cfgvar_buffer.h"
 
 // todo: rework this
 
@@ -362,6 +365,8 @@ void CConsole::ExecuteLineStroked(int Stroke, const char *pStr, int ClientID, bo
 					}
 					else
 					{
+						CCfgVarBuffer::BeforeSetCfg(pCommand->m_pName);
+
 						bool ValideArguments = pCommand->m_pfnCallback(&Result, pCommand->m_pUserData);
 						if(!ValideArguments)
 						{
@@ -372,6 +377,8 @@ void CConsole::ExecuteLineStroked(int Stroke, const char *pStr, int ClientID, bo
 							Print(OUTPUT_LEVEL_STANDARD, "Console", "Invalid arguments.");
 							Print(OUTPUT_LEVEL_STANDARD, "Console", aBuf);
 						}
+
+						CCfgVarBuffer::AfterSetCfg(pCommand->m_pName);
 					}
 				}
 			}
@@ -483,14 +490,46 @@ void CConsole::ExecuteFile(const char *pFilename)
 bool CConsole::Con_Echo(IResult *pResult, void *pUserData)
 {
 	((CConsole*)pUserData)->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Console", pResult->GetString(0));
-	
 	return true;
 }
 
 bool CConsole::Con_Exec(IResult *pResult, void *pUserData)
 {
 	((CConsole*)pUserData)->ExecuteFile(pResult->GetString(0));
-	
+	return true;
+}
+
+bool CConsole::Con_PrintCfg(IResult *pResult, void *pUserData)
+{
+	CCfgVarBuffer::ConPrintCfg(((CConsole*)pUserData), pResult->GetString(0));
+	return true;
+}
+
+bool CConsole::Con_PrintCmd(IResult *pResult, void *pUserData)
+{
+	char aBuff[256];
+	if (!pResult->GetString(0) || pResult->GetString(0)[0] == 0)
+		str_format(aBuff, 256, "Printing all commands :");
+	else
+		str_format(aBuff, 256, "Printing all commands containing '%s' :", pResult->GetString(0));
+	((CConsole*)pUserData)->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Console", "- - - - - - - - - - - - - - - - - - - - - - - -");
+	((CConsole*)pUserData)->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Console", aBuff);
+
+	const char *pCmdName = pResult->GetString(0);
+	for(CCommand *pCommand = ((CConsole*)pUserData)->m_pFirstCommand; pCommand; pCommand = pCommand->m_pNext)
+	{
+		if (CCfgVarBuffer::IsConfigVar(pCommand->m_pName)) continue;
+
+		if (pCmdName && pCmdName[0] != 0)
+			if (!strstr(pCommand->m_pName, pCmdName)) continue; // continue if command doesnt contain pCmdName
+
+		char lineBuff[512];
+		if (pCommand->m_pUsage && pCommand->m_pUsage[0] != 0)
+			str_format(lineBuff, 512, "%s %s -> %s", pCommand->m_pName, pCommand->m_pUsage, pCommand->m_pHelp);
+		else 
+			str_format(lineBuff, 512, "%s -> %s", pCommand->m_pName, pCommand->m_pHelp);
+		((CConsole*)pUserData)->Print(IConsole::OUTPUT_LEVEL_STANDARD, "Console", lineBuff);
+	}
 	return true;
 }
 
@@ -716,6 +755,9 @@ CConsole::CConsole(int FlagMask)
 	// register some basic commands
 	Register("echo", "r", CFGFLAG_SERVER|CFGFLAG_CLIENT, Con_Echo, this, "Echo the text");
 	Register("exec", "r", CFGFLAG_SERVER|CFGFLAG_CLIENT, Con_Exec, this, "Execute the specified file");
+
+	Register("print_cfg", "?s", CFGFLAG_SERVER, Con_PrintCfg, this, "Search for config vars that contain X and print their names and values");
+	Register("print_cmd", "?s", CFGFLAG_SERVER, Con_PrintCmd, this, "Search for commandos that contain X and print them");
 
 	Register("toggle", "sii", CFGFLAG_SERVER|CFGFLAG_CLIENT, ConToggle, this, "Toggle config value");
 	Register("+toggle", "sii", CFGFLAG_CLIENT, ConToggleStroke, this, "Toggle config value via keypress");
